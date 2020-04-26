@@ -13,13 +13,34 @@
  */
 module.exports = {
   /**
-   * Misc app configurations
+   * General AWS related configurations
    */
-  app: {
+  aws: {
     /**
-     * This text appears in VSCode Intellisense, and this value will be overwritten by the
-     * same value in the same category of the secret conf
+     * Access key ID to use when debugging
      */
-    value: 'some-value'
+    accessKeyId: null,
+
+    /**
+     * Access key secret to use when debugging
+     */
+    secretAccessKey: null
+  },
+
+  /**
+   * CloudWatchLog specific configurations
+   */
+  cloudWatchLog: {
+    /**
+     * Characters that cannot be in log stream name
+     */
+    logStreamRestrictedCharacters: [
+      ':'
+    ],
+
+    /**
+     * Log Group Name to use when testing
+     */
+    testLogGroupName: '/logs/test'
   }
 };
