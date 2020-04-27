@@ -6,16 +6,18 @@ Simple CloudWatch logging utility
 npm install --save cloudwatch-log
 ```
 
-# Basic Usage
+# Usage
+Usage is meant to be as simple as possible. On instantiation, this class takes a CloudWatchLogsSDK instance and the name of an existing CloudWatch Log Group. You can then use the `cloudWatchLog.put` function to add data to the CloudWatch Log Group, or use `cloudWatchLog.start` to create a new Log Stream with a custom name
 ```js
+// Import libraries
 const CloudWatchLogsSDK = require('aws-sdk/clients/cloudwatchlogs');
 const CloudWatchLog = require('cloudwatch-log');
 
 // Instantiate the logger
-const log = new CloudWatchLog(new CloudWatchLogsSDK({apiVersion: '2014-03-28', region: 'us-east-1'}), '/log/group/name');
+const sdk = new CloudWatchLogsSDK({apiVersion: '2014-03-28', region: 'us-east-1'})
+const log = new CloudWatchLog(sdk, '/log/group/name');
 
-// Put a single log into CloudWatch. A log stream will automatically be created with
-// the current time as its name
+// Put a single log into CloudWatch. A log stream will automatically be created with the current time as its name
 await log.put('Some log');
 
 // An array of log events can be provided
