@@ -33,6 +33,14 @@ await log.put([
 ]);
 
 // Manually create a new log stream with a provided name. Default is the current time
-await log.start(`${(new Date()).toISOString()}-cloudwatch-log-example`);
-await log.put('This log goes into the new stream');
+const streamName = `${(new Date()).toISOString()}-cloudwatch-log-example`;
+await log.start(streamName);
+const { nextSequenceToken:sequenceToken } = await log.put('This log goes into the new stream');
+
+// Create a new logger and continue where we left off
+const newLog = new CloudWatchLog(sdk, '/log/group/name');
+await log.put('This goes into the same stream', {
+  streamName,
+  sequenceToken
+});
 ```

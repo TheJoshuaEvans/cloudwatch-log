@@ -72,6 +72,21 @@ describe('cloudwatch-log', function() {
     assert.strictEqual(typeof putResults.logEvents[0].timestamp, 'number');
     assert.strictEqual(typeof putResults.nextSequenceToken, 'string');
 
+    // Create a new log object and continue in the same log stream
+    const newLog = new CloudWatchLog(cloudWatchLogsSdk, config.cloudWatchLog.testLogGroupName);
+    const streamInfo = {
+      streamName: customLogStreamName,
+      sequenceToken: putResults.nextSequenceToken
+    };
+    const newPutResult = await newLog.put('This is a new log object in the same stream', streamInfo);
+    assert.strictEqual(newPutResult.logGroupName, config.cloudWatchLog.testLogGroupName);
+    assert.strictEqual(typeof newPutResult.logStreamName, 'string');
+    assert.strictEqual(Array.isArray(newPutResult.logEvents), true);
+    assert.strictEqual(newPutResult.logEvents.length, 1);
+    assert.strictEqual(newPutResult.logEvents[0].message, 'This is a new log object in the same stream');
+    assert.strictEqual(typeof newPutResult.logEvents[0].timestamp, 'number');
+    assert.strictEqual(typeof newPutResult.nextSequenceToken, 'string');
+
     // Check that the events exist in CloudWatch
     await wait(2000);
     let existingLogEvents = await getLogEvents({logGroupName: config.cloudWatchLog.testLogGroupName, logStreamName: originalLogStreamName});
@@ -98,6 +113,10 @@ describe('cloudwatch-log', function() {
 
     foundMatch = existingLogEvents.events.find((event) => event.message === 'This log goes into the new stream');
     assert.strictEqual(foundMatch.message, 'This log goes into the new stream');
+    assert.strictEqual(typeof foundMatch.timestamp, 'number');
+
+    foundMatch = existingLogEvents.events.find((event) => event.message === 'This is a new log object in the same stream');
+    assert.strictEqual(foundMatch.message, 'This is a new log object in the same stream');
     assert.strictEqual(typeof foundMatch.timestamp, 'number');
   });
 });

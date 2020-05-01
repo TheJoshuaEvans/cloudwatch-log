@@ -1,7 +1,7 @@
 {
   "name": "cloudwatch-log",
-  "version": "1.0.1",
-  "description": "Simple module sends log events to CloudWatch",
+  "version": "1.1.0",
+  "description": "Simply log events to CloudWatch",
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive --test",
