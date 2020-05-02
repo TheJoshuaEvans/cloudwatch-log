@@ -81,6 +81,7 @@ describe('put-log-event', function() {
     ];
     let putLogEventRes = await putLogEvents({cloudWatchLogSdk, groupName, streamName: logStreamName, logEvents: firstLogEvents});
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
+    assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
     const sequenceToken = putLogEventRes.nextSequenceToken;
 
     const secondLogEvents = [
@@ -91,6 +92,7 @@ describe('put-log-event', function() {
     ];
     putLogEventRes = await await putLogEvents({cloudWatchLogSdk, groupName, streamName: logStreamName, logEvents: secondLogEvents, sequenceToken});
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
+    assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
 
     await wait(2000);
     const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
@@ -123,6 +125,7 @@ describe('put-log-event', function() {
     ];
     const putLogEventRes = await putLogEvents({cloudWatchLogSdk, groupName, streamName: logStreamName, logEvents});
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
+    assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
 
     await wait(2000);
     const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
