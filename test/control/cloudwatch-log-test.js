@@ -57,6 +57,23 @@ describe('cloudwatch-log', function() {
     assert.strictEqual(typeof putResults.logEvents[1].timestamp, 'number');
     assert.strictEqual(typeof putResults.nextSequenceToken, 'string');
 
+    // An array of non log events can be provided
+    putResults = await log.put([
+      {
+        noMessage: 'Non-message 1',
+      },
+      'String in an array'
+    ]);
+    assert.strictEqual(putResults.logGroupName, config.cloudWatchLog.testLogGroupName);
+    assert.strictEqual(typeof putResults.logStreamName, 'string');
+    assert.strictEqual(Array.isArray(putResults.logEvents), true);
+    assert.strictEqual(putResults.logEvents.length, 2);
+    assert.strictEqual(putResults.logEvents[0].message, JSON.stringify({noMessage: 'Non-message 1'}));
+    assert.strictEqual(typeof putResults.logEvents[0].timestamp, 'number');
+    assert.strictEqual(putResults.logEvents[1].message, 'String in an array');
+    assert.strictEqual(typeof putResults.logEvents[1].timestamp, 'number');
+    assert.strictEqual(typeof putResults.nextSequenceToken, 'string');
+
     // Manually create a new log stream, with a provided name. Default is the current ISO time
     const customLogStreamName = `${(new Date()).toISOString()}-cloudwatch-log-example`;
     const startResults = await log.start(customLogStreamName);
@@ -104,6 +121,14 @@ describe('cloudwatch-log', function() {
 
     foundMatch = existingLogEvents.events.find((event) => event.message === 'Event message 2');
     assert.strictEqual(foundMatch.message, 'Event message 2');
+    assert.strictEqual(typeof foundMatch.timestamp, 'number');
+
+    foundMatch = existingLogEvents.events.find((event) => event.message === JSON.stringify({noMessage: 'Non-message 1'}));
+    assert.strictEqual(foundMatch.message, JSON.stringify({noMessage: 'Non-message 1'}));
+    assert.strictEqual(typeof foundMatch.timestamp, 'number');
+
+    foundMatch = existingLogEvents.events.find((event) => event.message === 'String in an array');
+    assert.strictEqual(foundMatch.message, 'String in an array');
     assert.strictEqual(typeof foundMatch.timestamp, 'number');
 
     existingLogEvents = await getLogEvents({logGroupName: config.cloudWatchLog.testLogGroupName, logStreamName: removeCharacter(customLogStreamName, ':', '-')});

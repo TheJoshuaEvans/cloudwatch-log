@@ -44,7 +44,7 @@ describe('put-log-event', function() {
   });
 
   itSlowly('should add event to new log stream', async () => {
-    const streamName = `${(new Date()).toISOString()}-put-log-event-test`;
+    const streamName = `${(new Date()).toISOString()}-put-log`;
     const { logStreamName } = await createLogStream({cloudWatchLogSdk, groupName, streamName});
     assert.strictEqual(logStreamName, removeCharacter(streamName, ':', '-'));
 
@@ -69,7 +69,7 @@ describe('put-log-event', function() {
   });
 
   itSlowly('should add multiple events to the same stream in sequence', async () => {
-    const streamName = `${(new Date()).toISOString()}-put-log-multiple-sequential-event-test`;
+    const streamName = `${(new Date()).toISOString()}-put-log-multiple-sequential`;
     const { logStreamName } = await createLogStream({cloudWatchLogSdk, groupName, streamName});
     assert.strictEqual(logStreamName, removeCharacter(streamName, ':', '-'));
 
@@ -109,7 +109,7 @@ describe('put-log-event', function() {
   });
 
   itSlowly('should add multiple events to the same stream at once', async () => {
-    const streamName = `${(new Date()).toISOString()}-put-log-multiple-simultaneous-event-test`;
+    const streamName = `${(new Date()).toISOString()}-put-log-multiple-simultaneous`;
     const { logStreamName } = await createLogStream({cloudWatchLogSdk, groupName, streamName});
     assert.strictEqual(logStreamName, removeCharacter(streamName, ':', '-'));
 
@@ -139,5 +139,44 @@ describe('put-log-event', function() {
     foundMatch = existingLogEvents.events.find((event) => event.message === logEvents[1].message);
     assert.strictEqual(foundMatch.message, logEvents[1].message);
     assert.strictEqual(foundMatch.timestamp, logEvents[1].timestamp);
+  });
+
+  itSlowly('should recover from an invalid sequence token failure', async () => {
+    const streamName = `${(new Date()).toISOString()}-recover-invalid-token`;
+    const { logStreamName } = await createLogStream({cloudWatchLogSdk, groupName, streamName});
+    assert.strictEqual(logStreamName, removeCharacter(streamName, ':', '-'));
+
+    const firstLogEvents = [
+      {
+        message: `This is test message 1 for stream name: ${streamName}`,
+        timestamp: Date.now()
+      }
+    ];
+    let putLogEventRes = await putLogEvents({cloudWatchLogSdk, groupName, streamName: logStreamName, logEvents: firstLogEvents});
+    assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
+    assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
+
+    const secondLogEvents = [
+      {
+        message: `This is test message 2 for stream name: ${streamName}`,
+        timestamp: Date.now()
+      }
+    ];
+    putLogEventRes = await await putLogEvents({cloudWatchLogSdk, groupName, streamName: logStreamName, logEvents: secondLogEvents, sequenceToken: 'badToken'});
+    assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
+    assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
+
+    await wait(2000);
+    const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
+    assert.strictEqual(typeof existingLogEvents, 'object');
+    assert.strictEqual(Array.isArray(existingLogEvents.events), true);
+    
+    let foundMatch = existingLogEvents.events.find((event) => event.message === firstLogEvents[0].message);
+    assert.strictEqual(foundMatch.message, firstLogEvents[0].message);
+    assert.strictEqual(foundMatch.timestamp, firstLogEvents[0].timestamp);
+    
+    foundMatch = existingLogEvents.events.find((event) => event.message === secondLogEvents[0].message);
+    assert.strictEqual(foundMatch.message, secondLogEvents[0].message);
+    assert.strictEqual(foundMatch.timestamp, secondLogEvents[0].timestamp);
   });
 });
