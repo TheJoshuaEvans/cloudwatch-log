@@ -57,7 +57,7 @@ describe('put-log-event', function() {
     const putLogEventRes = await putLogEvents({cloudWatchLogSdk, groupName, streamName: logStreamName, logEvents});
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
 
-    await wait(2000);
+    await wait(1000);
     const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
 
     assert.strictEqual(typeof existingLogEvents, 'object');
@@ -94,7 +94,7 @@ describe('put-log-event', function() {
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
     assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
 
-    await wait(2000);
+    await wait(1000);
     const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
     assert.strictEqual(typeof existingLogEvents, 'object');
     assert.strictEqual(Array.isArray(existingLogEvents.events), true);
@@ -127,7 +127,7 @@ describe('put-log-event', function() {
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
     assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
 
-    await wait(2000);
+    await wait(1000);
     const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
     assert.strictEqual(typeof existingLogEvents, 'object');
     assert.strictEqual(Array.isArray(existingLogEvents.events), true);
@@ -166,7 +166,7 @@ describe('put-log-event', function() {
     assert.strictEqual(typeof putLogEventRes.nextSequenceToken, 'string');
     assert.strictEqual(putLogEventRes.logStreamName, removeCharacter(streamName, ':', '-'));
 
-    await wait(2000);
+    await wait(1000);
     const existingLogEvents = await getLogEvents({logGroupName: groupName, logStreamName});
     assert.strictEqual(typeof existingLogEvents, 'object');
     assert.strictEqual(Array.isArray(existingLogEvents.events), true);

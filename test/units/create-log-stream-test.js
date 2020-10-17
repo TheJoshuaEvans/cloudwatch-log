@@ -42,8 +42,8 @@ describe('create-log-stream', function() {
     assert.strictEqual(foundLongStream.logStreams[0].logStreamName, res.logStreamName);
   });
 
+  const customName = `${Date.now()}-custom-name-test`;
   itSlowly('should create a new log stream with an explicit name', async () => {
-    const customName = `${Date.now()}-custom-name-test`;
     const res = await createLogStream({cloudWatchLogSdk, groupName, streamName: customName});
     assert.strictEqual(typeof res, 'object');
     assert.strictEqual(res.logStreamName, customName);
@@ -53,5 +53,11 @@ describe('create-log-stream', function() {
     assert.strictEqual(Array.isArray(foundLongStream.logStreams), true);
     assert.strictEqual(foundLongStream.logStreams.length, 1);
     assert.strictEqual(foundLongStream.logStreams[0].logStreamName, customName);
+  });
+
+  itSlowly('should not error when creating a log stream that already exists', async () => {
+    const res = await createLogStream({cloudWatchLogSdk, groupName, streamName: customName});
+    assert.strictEqual(typeof res, 'object');
+    assert.strictEqual(res.logStreamName, customName);
   });
 });
