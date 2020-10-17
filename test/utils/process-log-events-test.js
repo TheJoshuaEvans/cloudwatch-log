@@ -2,6 +2,8 @@
 
 const assert = require('assert');
 
+const LogEvent = require('../../lib/classes/log-event.js');
+
 const processLogEvents = require('../../lib/utils/process-log-events.js');
 
 describe('process-log-events', function() {
@@ -10,6 +12,7 @@ describe('process-log-events', function() {
     const results = processLogEvents(input);
 
     assert.strictEqual(results.length, 1);
+    results.forEach(result => assert.ok(result instanceof LogEvent));
     assert.strictEqual(results[0].message, input);
     assert.strictEqual(typeof results[0].timestamp, 'number');
   });
@@ -37,6 +40,7 @@ describe('process-log-events', function() {
     const results = processLogEvents(input);
 
     assert.strictEqual(results.length, 1);
+    results.forEach(result => assert.ok(result instanceof LogEvent));
     assert.strictEqual(results[0].message, JSON.stringify(input));
     assert.strictEqual(typeof results[0].timestamp, 'number');
   });
@@ -49,25 +53,22 @@ describe('process-log-events', function() {
     const results = processLogEvents(input);
 
     assert.strictEqual(results.length, 2);
+    results.forEach(result => assert.ok(result instanceof LogEvent));
     assert.strictEqual(results[0].message, input[0]);
     assert.strictEqual(typeof results[0].timestamp, 'number');
     assert.strictEqual(results[1].message, input[1]);
     assert.strictEqual(typeof results[1].timestamp, 'number');
   });
 
-  it('should process objects', async () => {
+  it('should process existing LogEvent objects', async () => {
     const input = [
-      {
-        message: 'Complete object',
-        timestamp: Date.now()
-      },
-      {
-        message: 'Incomplete object'
-      }
+      new LogEvent('Complete object', Date.now()),
+      new LogEvent('Incomplete object')
     ];
     const results = processLogEvents(input);
 
     assert.strictEqual(results.length, 2);
+    results.forEach(result => assert.ok(result instanceof LogEvent));
     assert.strictEqual(results[0].message, input[0].message);
     assert.strictEqual(results[0].timestamp, input[0].timestamp);
     assert.strictEqual(results[1].message, input[1].message);
@@ -87,6 +88,7 @@ describe('process-log-events', function() {
     const results = processLogEvents(input);
 
     assert.strictEqual(results.length, 2);
+    results.forEach(result => assert.ok(result instanceof LogEvent));
     assert.strictEqual(results[0].message, JSON.stringify(input[0]));
     assert.strictEqual(typeof results[0].timestamp, 'number');
     assert.strictEqual(results[1].message, JSON.stringify(input[1]));
@@ -95,13 +97,8 @@ describe('process-log-events', function() {
 
   it('should process hybrid input', async () => {
     const input = [
-      {
-        message: 'Complete object',
-        timestamp: Date.now()
-      },
-      {
-        message: 'Incomplete object'
-      },
+      new LogEvent('Complete object', Date.now()),
+      new LogEvent('Incomplete object'),
       'String input',
       {
         noMessage: 'No messages on this object'
@@ -110,6 +107,7 @@ describe('process-log-events', function() {
     const results = processLogEvents(input);
 
     assert.strictEqual(results.length, 4);
+    results.forEach(result => assert.ok(result instanceof LogEvent));
     assert.strictEqual(results[0].message, input[0].message);
     assert.strictEqual(results[0].timestamp, input[0].timestamp);
     assert.strictEqual(results[1].message, input[1].message);
