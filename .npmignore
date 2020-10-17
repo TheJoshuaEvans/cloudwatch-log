@@ -114,4 +114,6 @@ test/
 
 # Misc File
 .eslintrc.js
+.eslintignore
 example.js
+testing.js
