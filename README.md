@@ -13,7 +13,7 @@ This library is designed to be used with an async/await pattern and exclusively 
 This library is designed to be as easy to use as possible
 ```js
 // Import libraries
-const CloudWatchLogsSDK = require('aws-sdk/clients/cloudwatchlogs');
+const CloudWatchLogsSDK = require('@aws-sdk/client-cloudwatch-logs');
 const CloudWatchLog = require('cloudwatch-log');
 
 // Instantiate the logger
